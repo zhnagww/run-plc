@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.runplc.mapper.PlcAddrMapper">
+
+    <resultMap id="PlcAddrMap" type="com.runplc.entity.PlcAddr">
+        <id property="id" column="id"/>
+        <result property="plcNo" column="plc_no"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="plcInfoId" column="plc_info_id"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.runplc.entity.PlcAddr" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO plc_addr (plc_no, name, type, plc_info_id)
+        VALUES (#{plcNo}, #{name}, #{type}, #{plcInfoId})
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM plc_addr WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.runplc.entity.PlcAddr">
+        UPDATE plc_addr
+        SET plc_no = #{plcNo},
+            name = #{name},
+            type = #{type},
+            plc_info_id = #{plcInfoId}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="int" resultMap="PlcAddrMap">
+        SELECT * FROM plc_addr WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="PlcAddrMap">
+        SELECT * FROM plc_addr
+    </select>
+    
+    <select id="selectByPlcInfoId" parameterType="int" resultMap="PlcAddrMap">
+        SELECT * FROM plc_addr WHERE plc_info_id = #{plcInfoId}
+    </select>
+    
+    <delete id="deleteByPlcInfoId" parameterType="int">
+        DELETE FROM plc_addr WHERE plc_info_id = #{plcInfoId}
+    </delete>
+
+    <select id="selectByPlcInfoIdAndPlcNo" resultMap="PlcAddrMap">
+        SELECT *
+        FROM plc_addr
+        WHERE plc_info_id = #{plcInfoId}
+          AND plc_no = #{plcNo}
+        LIMIT 1
+    </select>
+
+</mapper>

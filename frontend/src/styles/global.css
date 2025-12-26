@@ -1,0 +1,226 @@
+:root {
+  --bg: #0b1220;
+  --panel: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.10);
+  --text: rgba(255, 255, 255, 0.92);
+}
+
+/* Element Plus dark theme overrides (keep UI consistent) */
+:root.dark {
+  --el-bg-color: rgba(17, 24, 39, 0.70);
+  --el-bg-color-overlay: rgba(17, 24, 39, 0.92);
+  --el-fill-color-blank: rgba(255, 255, 255, 0.04);
+  --el-fill-color-light: rgba(255, 255, 255, 0.06);
+  --el-fill-color: rgba(255, 255, 255, 0.08);
+  --el-border-color: rgba(255, 255, 255, 0.12);
+  --el-border-color-light: rgba(255, 255, 255, 0.10);
+  --el-text-color-primary: rgba(255, 255, 255, 0.92);
+  --el-text-color-regular: rgba(255, 255, 255, 0.76);
+  --el-text-color-secondary: rgba(255, 255, 255, 0.62);
+  --el-text-color-placeholder: rgba(255, 255, 255, 0.42);
+  --el-mask-color: rgba(0, 0, 0, 0.55);
+  --el-box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  --el-box-shadow-light: 0 10px 24px rgba(0, 0, 0, 0.28);
+  --el-border-radius-base: 12px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(59, 130, 246, 0.22), transparent 60%),
+    radial-gradient(900px 700px at 80% 10%, rgba(34, 197, 94, 0.18), transparent 60%),
+    radial-gradient(900px 700px at 50% 90%, rgba(245, 158, 11, 0.14), transparent 55%),
+    var(--bg);
+}
+
+#app {
+  height: 100%;
+}
+
+.app-shell {
+  height: 100vh;
+}
+
+.app-aside {
+  background: rgba(255, 255, 255, 0.04);
+  border-right: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  padding: 18px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand__title {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.brand__sub {
+  font-size: 12px;
+  opacity: 0.65;
+  margin-top: 4px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(10px);
+}
+
+.page-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.app-main {
+  padding: 16px;
+}
+
+/* Glass look for Element Plus containers */
+.el-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  backdrop-filter: blur(12px);
+}
+
+.el-card__header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.el-table {
+  --el-table-border-color: rgba(255, 255, 255, 0.10);
+  --el-table-header-bg-color: rgba(255, 255, 255, 0.06);
+  --el-table-row-hover-bg-color: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.el-table th.el-table__cell {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.88) !important;
+}
+
+.el-table td.el-table__cell {
+  color: rgba(255, 255, 255, 0.84) !important;
+}
+
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+
+.el-input__inner,
+.el-textarea__inner {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.el-popper,
+.el-select__popper,
+.el-dropdown__popper {
+  background: rgba(17, 24, 39, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+.el-select-dropdown__item {
+  color: rgba(255, 255, 255, 0.82) !important;
+}
+
+.el-select-dropdown__item.is-hovering {
+  background: rgba(59, 130, 246, 0.18) !important;
+}
+
+.el-dialog {
+  background: rgba(17, 24, 39, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45) !important;
+  margin: 0 !important;
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure dialog is centered and not clipped by viewport */
+.el-overlay-dialog {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.el-dialog__header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-right: 0;
+}
+
+.el-dialog__title {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.el-dialog__body {
+  color: rgba(255, 255, 255, 0.86) !important;
+  padding: 16px 18px !important;
+  overflow: auto;
+  max-height: min(70vh, 520px);
+}
+
+.el-dialog__footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 18px !important;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.el-form-item__label {
+  color: rgba(255, 255, 255, 0.68) !important;
+}
+
+.el-form-item__content {
+  color: rgba(255, 255, 255, 0.90) !important;
+}
+
+.el-input-number .el-input__wrapper {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.el-input-number__increase,
+.el-input-number__decrease {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+.el-input-number__increase:hover,
+.el-input-number__decrease:hover {
+  background: rgba(255, 255, 255, 0.10) !important;
+}
+
+.el-overlay {
+  background: rgba(0, 0, 0, 0.55) !important;
+}
+
+.el-menu {
+  background: transparent !important;
+  border-right: 0 !important;
+}
+
+.el-menu-item {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+
+.el-menu-item.is-active {
+  color: rgba(255, 255, 255, 0.92) !important;
+  background: rgba(59, 130, 246, 0.18) !important;
+}

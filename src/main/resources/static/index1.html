@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>PLC管理系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin: 5px 0;
+            font-size: 20px;
+        }
+        /* Tab样式 */
+        .tab {
+            display: flex;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            margin-bottom: 5px;
+        }
+        .tab button {
+            background-color: inherit;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 8px 16px;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .tab button:hover {
+            background-color: #ddd;
+        }
+        .tab button.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .tabcontent {
+            display: none;
+            padding: 0;
+            border: 1px solid #ccc;
+            border-top: none;
+        }
+        .tabcontent.active {
+            display: block;
+        }
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .form-row {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.label-and-input {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group.label-and-input label {
+            margin-bottom: 2px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .form-group.input-wrapper {
+            display: flex;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 3px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+            width: 100%;
+            font-size: 12px;
+        }
+        .form-group textarea {
+            height: 40px;
+            resize: vertical;
+        }
+        .btn {
+            background-color: #007bff;
+            color: white;
+            padding: 4px 8px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            height: fit-content;
+            font-size: 12px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background-color: #e0a800;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+        }
+        .btn-info:hover {
+            background-color: #138496;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .button-group {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 4px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .actions {
+            white-space: nowrap;
+        }
+        .message {
+            padding: 4px;
+            margin: 4px 0;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .hidden {
+            display: none;
+        }
+        /* 详情弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 10% auto;
+            padding: 10px;
+            border: 1px solid #888;
+            width: 50%;
+            border-radius: 5px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
+        .detail-item {
+            margin-bottom: 5px;
+        }
+        .detail-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 80px;
+        }
+        .wide-select {
+            width: 250px;
+        }
+        .extra-wide-select {
+            width: 4000px;
+        }
+        .triple-width-input {
+            width: 600px;
+        }
+        .editable-input {
+            width: 100%;
+            padding: 2px;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            font-size: 12px;
+        }
+        .edit-actions {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+        }
+        /* 列宽设置 */
+        .col-checkbox {
+            width: 3%;
+        }
+        .col-sort {
+            width: 5%;
+        }
+        .col-plc-no {
+            width: 8%;
+        }
+        .col-name {
+            width: 48%;
+        }
+        .col-type {
+            width: 5%;
+        }
+        .col-ip {
+            width: 10%;
+        }
+        .col-value, .col-timeout {
+            width: 5%;
+        }
+        .col-actions {
+            width: 12%;
+        }
+        
+        /* 类型列背景色 */
+        .type-write {
+            background-color: #FFFACD !important; /* 浅金黄色 */
+        }
+        
+        .type-read {
+            background-color: #E0FFE0 !important; /* 柔和的浅绿色 */
+        }
+    </style>
+</head>
+<body>
+    <h1>PLC管理系统</h1>
+    
+    <!-- Tab标签 -->
+    <div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'comboDebug')">组合调试</button>
+        <button class="tablinks" onclick="openTab(event, 'plcAddr')">PLC点位管理</button>
+        <button class="tablinks" onclick="openTab(event, 'plcInfo')">PLC信息管理</button>
+    </div>
+
+    <!-- PLC信息管理 Tab内容 -->
+    <div id="plcInfo" class="tabcontent">
+        <div id="plcInfoMessage" class="message hidden"></div>
+        
+        <div class="form-container">
+            <form id="plcForm">
+                <input type="hidden" id="plcId">
+                <div class="form-row">
+                    <div class="form-group label-and-input">
+                        <div class="input-wrapper">
+                            <input type="text" id="ipAddr" required placeholder="IP地址，例如: 192.168.10.1">
+                        </div>
+                    </div>
+                    <div class="form-group label-and-input">
+                        <div class="input-wrapper">
+                            <input type="number" id="portNo" required placeholder="端口">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="button-group">
+                            <button type="button" class="btn btn-warning" id="cancelBtn">取消</button>
+                            <button type="submit" class="btn" id="saveBtn">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <table id="plcTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>IP地址</th>
+                    <th>端口</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- PLC点位管理 Tab内容 -->
+    <div id="plcAddr" class="tabcontent">
+        <div id="plcAddrMessage" class="message hidden"></div>
+        
+        <div class="form-container">
+            <div class="form-row">
+                <div class="form-group label-and-input">
+                    <div class="input-wrapper">
+                        <select id="plcInfoSelect" class="wide-select" required>
+                            <option value="">请选择PLC</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button class="btn" id="addPointBtn" disabled>新增点位</button>
+                </div>
+            </div>
+        </div>
+        
+        <table id="plcAddrTable">
+            <thead>
+                <tr>
+                    <th class="col-checkbox"><input type="checkbox" id="selectAllCheckbox"></th>
+                    <th class="col-plc-no">PLC点位</th>
+                    <th class="col-name">名称</th>
+                    <th class="col-type">类型</th>
+                    <th class="col-ip">IP地址</th>
+                    <th class="col-actions">操作</th>
+                    <th>调试</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        
+        <div id="selectedPointsContainer" style="margin-top: 10px;">
+            <div>已选择的点位编号（按选择顺序排列）：</div>
+            <div id="selectedPointsList" style="margin: 5px 0; min-height: 20px;"></div>
+            <input type="text" id="comboDebugName" placeholder="输入组合调试名" class="triple-width-input" style="padding: 5px; margin-right: 10px;">
+            <button class="btn" id="comboDebugBtn">新增组合调试</button>
+        </div>
+
+        <!-- 详情弹窗 -->
+        <div id="detailModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>PLC地址详情</h2>
+                <div id="detailContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换功能
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.className += " active";
+            
+            // 初始化对应Tab的内容
+            if (tabName === 'plcInfo' && !plcInfoLoaded) {
+                loadPlcInfoList();
+                plcInfoLoaded = true;
+            } else if (tabName === 'plcAddr' && !plcAddrLoaded) {
+                loadPlcInfoListForAddr();
+                plcAddrLoaded = true;
+            } else if (tabName === 'comboDebug' && !comboDebugLoaded) {
+                loadComboDebugList();
+                comboDebugLoaded = true;
+            }
+        }
+        
+        // PLC信息管理相关变量和函数
+        const plcInfoApiUrl = '/api/plc-info';
+        let isEditing = false;
+        let plcInfoLoaded = false;
+        
+        // DOM元素
+        const plcForm = document.getElementById('plcForm');
+        const plcTableBody = document.querySelector('#plcTable tbody');
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const plcInfoMessageDiv = document.getElementById('plcInfoMessage');
+        
+        // 输入字段
+        const plcIdInput = document.getElementById('plcId');
+        const ipAddrInput = document.getElementById('ipAddr');
+        const portNoInput = document.getElementById('portNo');
+        
+        // 页面加载完成后初始化PLC信息管理
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定表单提交事件
+            plcForm.addEventListener('submit', handleFormSubmit);
+            
+            // 绑定取消按钮事件
+            cancelBtn.addEventListener('click', resetForm);
+            
+            // 绑定PLC选择事件
+            plcInfoSelect.addEventListener('change', handlePlcInfoChange);
+            
+            // 绑定新增点位按钮事件
+            addPointBtn.addEventListener('click', addNewRow);
+            
+            // 绑定组合调试按钮事件
+            comboDebugBtn.addEventListener('click', handleComboDebug);
+            
+            // 绑定全选复选框事件
+            selectAllCheckbox.addEventListener('change', handleSelectAll);
+            
+            // 绑定组合调试选择事件
+            document.getElementById('comboDebugSelect').addEventListener('change', handleComboDebugChange);
+            
+            // 默认加载组合调试内容
+            loadComboDebugList();
+            comboDebugLoaded = true;
+        });
+        
+        // 加载PLC信息列表
+        function loadPlcInfoList() {
+            fetch(plcInfoApiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        renderPlcInfoList(data.data);
+                    } else {
+                        showMessage('加载数据失败: ' + data.msg, 'error', 'plcInfo');
+                    }
+                })
+                .catch(error => {
+                    showMessage('加载数据失败: ' + error.message, 'error', 'plcInfo');
+                });
+        }
+        
+        // 渲染PLC信息列表
+        function renderPlcInfoList(plcInfos) {
+            plcTableBody.innerHTML = '';
+            
+            plcInfos.forEach(plcInfo => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${plcInfo.id || ''}</td>
+                    <td>${plcInfo.ipAddr || ''}</td>
+                    <td>${plcInfo.portNo || ''}</td>
+                    <td class="actions">
+                        <button class="btn" onclick="editPlcInfo(${JSON.stringify(plcInfo).replace(/"/g, '&quot;')})">编辑</button>
+                        <button class="btn btn-danger" onclick="deletePlcInfo(${plcInfo.id})">删除</button>
+                    </td>
+                `;
+                plcTableBody.appendChild(row);
+            });
+        }
+        
+        // 处理表单提交
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const plcInfo = {
+                ipAddr: ipAddrInput.value,
+                portNo: parseInt(portNoInput.value)
+            };
+            
+            if (isEditing) {
+                // 编辑模式
+                plcInfo.id = parseInt(plcIdInput.value);
+                updatePlcInfo(plcInfo);
+            } else {
+                // 新增模式
+                createPlcInfo(plcInfo);
+            }
+        }
+        
+        // 新增PLC信息
+        function createPlcInfo(plcInfo) {
+            fetch(plcInfoApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(plcInfo)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('PLC信息创建成功', 'success', 'plcInfo');
+                    resetForm();
+                    loadPlcInfoList();
+                } else if (result.code === 508) {
+                    showMessage('PLC信息创建失败: ' + result.msg, 'warning', 'plcInfo');
+                } else {
+                    showMessage('PLC信息创建失败: ' + result.msg, 'error', 'plcInfo');
+                }
+            })
+            .catch(error => {
+                showMessage('创建失败: ' + error.message, 'error', 'plcInfo');
+            });
+        }
+        
+        // 更新PLC信息
+        function updatePlcInfo(plcInfo) {
+            fetch(plcInfoApiUrl + '/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(plcInfo)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('PLC信息更新成功', 'success', 'plcInfo');
+                    resetForm();
+                    loadPlcInfoList();
+                } else if (result.code === 508) {
+                    showMessage('PLC信息更新失败: ' + result.msg, 'warning', 'plcInfo');
+                } else {
+                    showMessage('PLC信息更新失败: ' + result.msg, 'error', 'plcInfo');
+                }
+            })
+            .catch(error => {
+                showMessage('更新失败: ' + error.message, 'error', 'plcInfo');
+            });
+        }
+        
+        // 编辑PLC信息
+        function editPlcInfo(plcInfo) {
+            isEditing = true;
+            saveBtn.textContent = '更新';
+            
+            // 填充表单数据
+            plcIdInput.value = plcInfo.id;
+            ipAddrInput.value = plcInfo.ipAddr;
+            portNoInput.value = plcInfo.portNo;
+        }
+        
+        // 删除PLC信息
+        function deletePlcInfo(id) {
+            if (!confirm('确定要删除这条PLC信息吗？')) {
+                return;
+            }
+            
+            fetch(plcInfoApiUrl + '/delete?id=' + id, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('PLC信息删除成功', 'success', 'plcInfo');
+                    loadPlcInfoList();
+                } else {
+                    showMessage('PLC信息删除失败: ' + result.msg, 'error', 'plcInfo');
+                }
+            })
+            .catch(error => {
+                showMessage('删除失败: ' + error.message, 'error', 'plcInfo');
+            });
+        }
+        
+        // 重置表单
+        function resetForm() {
+            isEditing = false;
+            saveBtn.textContent = '保存';
+            plcForm.reset();
+            plcIdInput.value = '';
+        }
+        
+        // PLC地址管理相关变量和函数
+        const plcAddrApiUrl = '/api/plc-addr';
+        const plcRunApiUrl = '/api/plc-run';
+        const plcDebugApiUrl = '/api/plc-debug'; // 新增调试API URL
+        let plcInfoList = [];
+        let currentPlcInfoId = null;
+        let currentPlcAddrList = []; // 存储当前PLC的所有地址，用于检查重复
+        let plcAddrLoaded = false;
+        let selectedPlcPoints = []; // 存储用户选择的PLC点位
+        
+        // 组合调试相关变量
+        let comboDebugLoaded = false;
+        
+        // DOM元素
+        const plcAddrTableBody = document.querySelector('#plcAddrTable tbody');
+        const addPointBtn = document.getElementById('addPointBtn');
+        const plcAddrMessageDiv = document.getElementById('plcAddrMessage');
+        const selectedPointsList = document.getElementById('selectedPointsList');
+        const comboDebugName = document.getElementById('comboDebugName');
+        const comboDebugBtn = document.getElementById('comboDebugBtn');
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        
+        // 输入字段
+        const plcInfoSelect = document.getElementById('plcInfoSelect');
+        
+        // 弹窗元素
+        const detailModal = document.getElementById('detailModal');
+        const detailContent = document.getElementById('detailContent');
+        const detailClose = document.querySelector('#detailModal .close');
+        
+        // 类型映射
+        const typeMap = {
+            1: '写入',
+            2: '读取'
+        };
+        
+        // 类型样式映射
+        const typeClassMap = {
+            1: 'type-write',
+            2: 'type-read'
+        };
+        
+        // 加载PLC信息列表（用于地址管理）
+        function loadPlcInfoListForAddr() {
+            fetch(plcInfoApiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        plcInfoList = data.data;
+                        populatePlcInfoSelect();
+                    } else {
+                        showMessage('加载PLC信息失败: ' + data.msg, 'error', 'plcAddr');
+                    }
+                })
+                .catch(error => {
+                    showMessage('加载PLC信息失败: ' + error.message, 'error', 'plcAddr');
+                });
+        }
+        
+        // 填充PLC信息下拉框
+        function populatePlcInfoSelect() {
+            plcInfoSelect.innerHTML = '<option value="">请选择PLC</option>';
+            plcInfoList.forEach(plcInfo => {
+                const option = document.createElement('option');
+                option.value = plcInfo.id;
+                option.textContent = `${plcInfo.ipAddr}:${plcInfo.portNo}`;
+                plcInfoSelect.appendChild(option);
+            });
+        }
+        
+        // 处理PLC信息选择变化
+        function handlePlcInfoChange() {
+            currentPlcInfoId = parseInt(plcInfoSelect.value) || null;
+            // 清空之前选择的点位
+            selectedPlcPoints = [];
+            updateSelectedPointsDisplay();
+            
+            if (currentPlcInfoId) {
+                addPointBtn.disabled = false;
+                loadPlcAddrListByPlcInfoId(currentPlcInfoId);
+            } else {
+                addPointBtn.disabled = true;
+                plcAddrTableBody.innerHTML = '';
+            }
+        }
+        
+        // 添加新行
+        function addNewRow() {
+            if (!currentPlcInfoId) {
+                showMessage('请先选择PLC', 'warning', 'plcAddr');
+                return;
+            }
+            
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td></td>
+                <td><input type="number" class="editable-input" id="new-plcNo" placeholder="请输入数字"></td>
+                <td><input type="text" class="editable-input" id="new-name"></td>
+                <td>
+                    <select class="editable-input" id="new-type">
+                        <option value="1">写入</option>
+                        <option value="2">读取</option>
+                    </select>
+                </td>
+                <td>${getSelectedPlcIp()}</td>
+                <td class="edit-actions">
+                    <button class="btn btn-success" onclick="saveNew()">保存</button>
+                    <button class="btn btn-warning" onclick="cancelNew()">取消</button>
+                </td>
+                <td>
+                    <input type="number" class="debug-value-input" style="width: 60px; margin-right: 5px;" disabled>
+                    <button class="btn btn-info" disabled>运行</button>
+                </td>
+            `;
+            // 监听新增行中的类型选择变化，实时改变行的背景色
+            const newTypeSelect = newRow.querySelector('#new-type');
+            newTypeSelect.addEventListener('change', function() {
+                newRow.classList.remove('type-write', 'type-read');
+                newRow.classList.add(typeClassMap[this.value] || '');
+            });
+            plcAddrTableBody.appendChild(newRow);
+            
+            // 禁用新增按钮
+            addPointBtn.disabled = true;
+        }
+        
+        // 获取选中PLC的IP地址
+        function getSelectedPlcIp() {
+            const plcInfo = plcInfoList.find(info => info.id === currentPlcInfoId);
+            return plcInfo ? plcInfo.ipAddr : '未知';
+        }
+        
+        // 保存新增
+        function saveNew() {
+            if (!currentPlcInfoId) {
+                showMessage('PLC信息无效', 'warning', 'plcAddr');
+                return;
+            }
+            
+            const plcNo = document.getElementById('new-plcNo').value;
+            const name = document.getElementById('new-name').value;
+            const type = document.getElementById('new-type').value;
+            
+            // 检查点位编号是否为空
+            if (!plcNo) {
+                showMessage('PLC点位编号不能为空', 'warning', 'plcAddr');
+                return;
+            }
+            
+            // 检查点位编号是否为数字
+            if (!/^-?\d+$/.test(plcNo)) {
+                showMessage('PLC点位编号必须是数字', 'warning', 'plcAddr');
+                return;
+            }
+            
+            // 检查点位编号是否重复
+            if (isPlcNoDuplicate(parseInt(plcNo))) {
+                showMessage('该点位编号已存在，请使用其他编号', 'warning', 'plcAddr');
+                return;
+            }
+            
+            const plcAddr = {
+                plcNo: parseInt(plcNo),
+                name: name,
+                type: parseInt(type),
+                plcInfoId: currentPlcInfoId
+            };
+            
+            // 更新行的背景色
+            const newRow = plcAddrTableBody.lastChild;
+            if (newRow) {
+                newRow.classList.remove('type-write', 'type-read');
+                newRow.classList.add(typeClassMap[type] || '');
+            }
+            
+            createPlcAddr(plcAddr);
+        }
+        
+        // 检查点位编号是否重复
+        function isPlcNoDuplicate(plcNo) {
+            return currentPlcAddrList.some(addr => addr.plcNo === plcNo);
+        }
+        
+        // 取消新增
+        function cancelNew() {
+            // 移除新增行
+            const newRow = plcAddrTableBody.lastChild;
+            if (newRow) {
+                plcAddrTableBody.removeChild(newRow);
+            }
+            
+            // 启用新增按钮
+            addPointBtn.disabled = false;
+        }
+        
+        // 根据PLC信息ID加载PLC地址列表
+        function loadPlcAddrListByPlcInfoId(plcInfoId) {
+            fetch(plcAddrApiUrl + '/get-by-plc-info-id?plcInfoId=' + plcInfoId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        // 按PLC点位编号排序
+                        currentPlcAddrList = data.data.sort((a, b) => a.plcNo - b.plcNo);
+                        renderPlcAddrList(currentPlcAddrList);
+                    } else {
+                        showMessage('加载数据失败: ' + data.msg, 'error', 'plcAddr');
+                    }
+                })
+                .catch(error => {
+                    showMessage('加载数据失败: ' + error.message, 'error', 'plcAddr');
+                });
+        }
+        
+        // 渲染PLC地址列表
+        function renderPlcAddrList(plcAddrs) {
+            plcAddrTableBody.innerHTML = '';
+            
+            plcAddrs.forEach(plcAddr => {
+                // 查找对应的PLC信息
+                const plcInfo = plcInfoList.find(info => info.id === plcAddr.plcInfoId);
+                const ipAddr = plcInfo ? plcInfo.ipAddr : '未知';
+                
+                const row = document.createElement('tr');
+                row.classList.add(typeClassMap[plcAddr.type] || '');
+                row.innerHTML = `
+                    <td><input type="checkbox" class="point-checkbox" data-plc-no="${plcAddr.plcNo}" data-id="${plcAddr.id}"></td>
+                    <td>${plcAddr.plcNo || ''}</td>
+                    <td>${plcAddr.name || ''}</td>
+                    <td>${typeMap[plcAddr.type] || plcAddr.type}</td>
+                    <td>${ipAddr}</td>
+                    <td class="actions">
+                        <button class="btn" onclick="editInline(${plcAddr.id})">编辑</button>
+                        <button class="btn btn-danger" onclick="deletePlcAddr(${plcAddr.id})">删除</button>
+                    </td>
+                    <td>
+                        ${plcAddr.type == 1 ? 
+                          `<input type="number" class="debug-value-input" id="debug-value-${plcAddr.id}" style="width: 60px; margin-right: 5px;">
+                           <button class="btn btn-info" onclick="writePlcValue(${plcAddr.id})">运行</button>` :
+                          `<span class="debug-read-value" id="debug-read-value-${plcAddr.id}">--</span>
+                           <button class="btn btn-info" onclick="readPlcValue(${plcAddr.id})">运行</button>`
+                        }
+                    </td>
+                `;
+                row.dataset.id = plcAddr.id;
+                plcAddrTableBody.appendChild(row);
+                
+                // 绑定复选框事件
+                const checkbox = row.querySelector('.point-checkbox');
+                checkbox.addEventListener('change', handlePointSelection);
+            });
+        }
+        
+        // 内联编辑
+        function editInline(id) {
+            // 获取当前行
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (!row) return;
+            
+            // 获取PLC地址信息
+            fetch(plcAddrApiUrl + `/get?id=${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const plcAddr = data.data;
+                        
+                        // 替换行内容为编辑表单
+                        row.classList.add(typeClassMap[plcAddr.type] || '');
+                        row.innerHTML = `
+                            <td>${row.cells[0].innerHTML}</td>
+                            <td><input type="number" class="editable-input" value="${plcAddr.plcNo}" id="edit-plcNo-${id}" placeholder="请输入数字"></td>
+                            <td><input type="text" class="editable-input" value="${plcAddr.name}" id="edit-name-${id}"></td>
+                            <td>
+                                <select class="editable-input" id="edit-type-${id}">
+                                    <option value="1" ${plcAddr.type == 1 ? 'selected' : ''}>写入</option>
+                                    <option value="2" ${plcAddr.type == 2 ? 'selected' : ''}>读取</option>
+                                </select>
+                            </td>
+                            <td>${row.cells[4].innerHTML}</td>
+                            <td class="edit-actions">
+                                <button class="btn btn-success" onclick="saveInline(${id})">保存</button>
+                                <button class="btn btn-warning" onclick="cancelInline(${id})">取消</button>
+                            </td>
+                            <td>
+                                ${plcAddr.type == 1 ? 
+                                  `<input type="number" class="debug-value-input" id="debug-value-${id}" style="width: 60px; margin-right: 5px;">
+                                   <button class="btn btn-info" onclick="writePlcValue(${id})">运行</button>` :
+                                  `<span class="debug-read-value" id="debug-read-value-${id}">--</span>
+                                   <button class="btn btn-info" onclick="readPlcValue(${id})">运行</button>`
+                                }
+                            </td>
+                        `;
+                        
+                        // 监听编辑行中的类型选择变化，实时改变行的背景色
+                        const editTypeSelect = row.querySelector(`#edit-type-${id}`);
+                        editTypeSelect.addEventListener('change', function() {
+                            row.classList.remove('type-write', 'type-read');
+                            row.classList.add(typeClassMap[this.value] || '');
+                        });
+                    } else {
+                        showMessage('加载数据失败: ' + data.msg, 'error', 'plcAddr');
+                    }
+                })
+                .catch(error => {
+                    showMessage('加载数据失败: ' + error.message, 'error', 'plcAddr');
+                });
+        }
+        
+        // 保存内联编辑
+        function saveInline(id) {
+            if (!currentPlcInfoId) {
+                showMessage('PLC信息无效', 'warning', 'plcAddr');
+                return;
+            }
+            
+            const plcNo = document.getElementById(`edit-plcNo-${id}`).value;
+            const name = document.getElementById(`edit-name-${id}`).value;
+            const type = document.getElementById(`edit-type-${id}`).value;
+            
+            // 检查点位编号是否为空
+            if (!plcNo) {
+                showMessage('PLC点位编号不能为空', 'warning', 'plcAddr');
+                return;
+            }
+            
+            // 检查点位编号是否为数字
+            if (!/^-?\d+$/.test(plcNo)) {
+                showMessage('PLC点位编号必须是数字', 'warning', 'plcAddr');
+                return;
+            }
+            
+            // 检查点位编号是否重复（排除自身）
+            if (isPlcNoDuplicateExcluding(parseInt(plcNo), id)) {
+                showMessage('该点位编号已存在，请使用其他编号', 'warning', 'plcAddr');
+                return;
+            }
+            
+            const plcAddr = {
+                id: id,
+                plcNo: parseInt(plcNo),
+                name: name,
+                type: parseInt(type),
+                plcInfoId: currentPlcInfoId
+            };
+            
+            // 更新行的背景色
+            const row = document.querySelector(`tr[data-id="${id}"]`);
+            if (row) {
+                row.classList.remove('type-write', 'type-read');
+                row.classList.add(typeClassMap[type] || '');
+            }
+            
+            updatePlcAddr(plcAddr);
+        }
+        
+        // 检查点位编号是否重复（排除指定ID的记录）
+        function isPlcNoDuplicateExcluding(plcNo, excludeId) {
+            return currentPlcAddrList.some(addr => addr.plcNo === plcNo && addr.id !== excludeId);
+        }
+        
+        // 取消内联编辑
+        function cancelInline(id) {
+            loadPlcAddrListByPlcInfoId(currentPlcInfoId);
+        }
+        
+        // 显示详情
+        function showDetail(plcAddr) {
+            // 查找对应的PLC信息
+            const plcInfo = plcInfoList.find(info => info.id === plcAddr.plcInfoId);
+            const ipAddr = plcInfo ? plcInfo.ipAddr : '未知';
+            
+            detailContent.innerHTML = `
+                <div class="detail-item">
+                    <span class="detail-label">ID:</span>
+                    <span>${plcAddr.id || ''}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">PLC点位编号:</span>
+                    <span>${plcAddr.plcNo || ''}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">名称:</span>
+                    <span>${plcAddr.name || ''}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">类型:</span>
+                    <span>${typeMap[plcAddr.type] || plcAddr.type}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">IP地址:</span>
+                    <span>${ipAddr}</span>
+                </div>
+            `;
+            
+            detailModal.style.display = "block";
+        }
+        
+        // 新增PLC地址
+        function createPlcAddr(plcAddr) {
+            fetch(plcAddrApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(plcAddr)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('PLC地址创建成功', 'success', 'plcAddr');
+                    loadPlcAddrListByPlcInfoId(currentPlcInfoId);
+                    // 启用新增按钮
+                    addPointBtn.disabled = false;
+                } else if (result.code === 508) {
+                    showMessage('PLC地址创建失败: ' + result.msg, 'warning', 'plcAddr');
+                } else {
+                    showMessage('PLC地址创建失败: ' + result.msg, 'error', 'plcAddr');
+                }
+            })
+            .catch(error => {
+                showMessage('创建失败: ' + error.message, 'error', 'plcAddr');
+            });
+        }
+        
+        // 更新PLC地址
+        function updatePlcAddr(plcAddr) {
+            fetch(plcAddrApiUrl + '/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(plcAddr)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('PLC地址更新成功', 'success', 'plcAddr');
+                    loadPlcAddrListByPlcInfoId(currentPlcInfoId);
+                } else if (result.code === 508) {
+                    showMessage('PLC地址更新失败: ' + result.msg, 'warning', 'plcAddr');
+                } else {
+                    showMessage('PLC地址更新失败: ' + result.msg, 'error', 'plcAddr');
+                }
+            })
+            .catch(error => {
+                showMessage('更新失败: ' + error.message, 'error', 'plcAddr');
+            });
+        }
+        
+        // 删除PLC地址
+        function deletePlcAddr(id) {
+            if (!confirm('确定要删除这条PLC地址信息吗？')) {
+                return;
+            }
+            
+            fetch(plcAddrApiUrl + '/delete?id=' + id, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('PLC地址删除成功', 'success', 'plcAddr');
+                    loadPlcAddrListByPlcInfoId(currentPlcInfoId);
+                } else {
+                    showMessage('PLC地址删除失败: ' + result.msg, 'error', 'plcAddr');
+                }
+            })
+            .catch(error => {
+                showMessage('删除失败: ' + error.message, 'error', 'plcAddr');
+            });
+        }
+        
+        // 写入PLC值
+        function writePlcValue(plcAddrId) {
+            const valueInput = document.getElementById(`debug-value-${plcAddrId}`);
+            const value = parseInt(valueInput.value);
+            
+            if (isNaN(value)) {
+                showMessage('请输入有效的数值', 'warning', 'plcAddr');
+                return;
+            }
+            
+            const debugData = {
+                plcAddrId: plcAddrId,
+                value: value
+            };
+            
+            fetch(plcDebugApiUrl + '/write', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(debugData)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('写入成功', 'success', 'plcAddr');
+                    // 显示成功提示框
+                    alert('写入成功');
+                } else {
+                    showMessage('写入失败: ' + result.msg, 'error', 'plcAddr');
+                    // 显示失败提示框
+                    alert('写入失败: ' + result.msg);
+                }
+            })
+            .catch(error => {
+                showMessage('写入失败: ' + error.message, 'error', 'plcAddr');
+                // 显示失败提示框
+                alert('写入失败: ' + error.message);
+            });
+        }
+        
+        // 读取PLC值
+        function readPlcValue(plcAddrId) {
+            const valueSpan = document.getElementById(`debug-read-value-${plcAddrId}`);
+            
+            fetch(plcDebugApiUrl + '/read?plcAddrId=' + plcAddrId)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.code === 200) {
+                        valueSpan.textContent = result.data.value;
+                        showMessage('读取成功', 'success', 'plcAddr');
+                        // 显示成功提示框
+                        alert('读取成功，值为: ' + result.data.value);
+                    } else {
+                        valueSpan.textContent = '--';
+                        showMessage('读取失败: ' + result.msg, 'error', 'plcAddr');
+                        // 显示失败提示框
+                        alert('读取失败: ' + result.msg);
+                    }
+                })
+                .catch(error => {
+                    valueSpan.textContent = '--';
+                    showMessage('读取失败: ' + error.message, 'error', 'plcAddr');
+                    // 显示失败提示框
+                    alert('读取失败: ' + error.message);
+                });
+        }
+        
+        // 显示消息
+        function showMessage(message, type, tab) {
+            const messageDiv = tab === 'plcInfo' ? plcInfoMessageDiv : plcAddrMessageDiv;
+            messageDiv.textContent = message;
+            messageDiv.className = `message ${type}`;
+            messageDiv.classList.remove('hidden');
+            
+            // 3秒后自动隐藏消息
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 3000);
+        }
+        
+        // 处理点位选择
+        function handlePointSelection(event) {
+            const checkbox = event.target;
+            const plcNo = parseInt(checkbox.dataset.plcNo);
+            const id = parseInt(checkbox.dataset.id);
+            
+            if (checkbox.checked) {
+                // 添加到选中列表
+                selectedPlcPoints.push({plcNo: plcNo, id: id});
+            } else {
+                // 从选中列表中移除
+                selectedPlcPoints = selectedPlcPoints.filter(point => point.id !== id);
+                // 取消全选框选中状态
+                selectAllCheckbox.checked = false;
+            }
+            
+            // 更新显示
+            updateSelectedPointsDisplay();
+        }
+        
+        // 处理全选
+        function handleSelectAll(event) {
+            const checkboxes = document.querySelectorAll('.point-checkbox');
+            selectedPlcPoints = [];
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = event.target.checked;
+                if (event.target.checked) {
+                    const plcNo = parseInt(checkbox.dataset.plcNo);
+                    const id = parseInt(checkbox.dataset.id);
+                    selectedPlcPoints.push({plcNo: plcNo, id: id});
+                }
+            });
+            
+            // 更新显示
+            updateSelectedPointsDisplay();
+        }
+        
+        // 更新选中点位显示
+        function updateSelectedPointsDisplay() {
+            const pointsText = selectedPlcPoints.map(point => point.plcNo).join(', ');
+            selectedPointsList.textContent = pointsText;
+        }
+        
+        // 处理组合调试
+        function handleComboDebug() {
+            if (selectedPlcPoints.length === 0) {
+                showMessage('请至少选择一个点位', 'warning', 'plcAddr');
+                return;
+            }
+            
+            const name = comboDebugName.value.trim();
+            if (!name) {
+                showMessage('请输入组合调试名', 'warning', 'plcAddr');
+                return;
+            }
+            
+            // 构造detail字段（点位编号用逗号分隔）
+            const detail = selectedPlcPoints.map(point => point.plcNo).join(',');
+            // 构造plc_addr_ids字段（点位ID用逗号分隔）
+            const plcAddrIds = selectedPlcPoints.map(point => point.id).join(',');
+            
+            // 发送请求
+            const plcRun = {
+                name: name,
+                detail: detail,
+                plcAddrIds: plcAddrIds
+            };
+            
+            fetch(plcRunApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(plcRun)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('组合调试创建成功', 'success', 'plcAddr');
+                    comboDebugName.value = '';
+                } else {
+                    showMessage('组合调试创建失败: ' + result.msg, 'error', 'plcAddr');
+                }
+            })
+            .catch(error => {
+                showMessage('创建失败: ' + error.message, 'error', 'plcAddr');
+            });
+        }
+        
+        // 绑定PLC选择事件
+        plcInfoSelect.addEventListener('change', handlePlcInfoChange);
+        
+        // 绑定新增点位按钮事件
+        addPointBtn.addEventListener('click', addNewRow);
+        
+        // 绑定组合调试按钮事件
+        comboDebugBtn.addEventListener('click', handleComboDebug);
+        
+        // 绑定全选复选框事件
+        selectAllCheckbox.addEventListener('change', handleSelectAll);
+        
+        // 绑定详情弹窗关闭事件
+        detailClose.onclick = function() {
+            detailModal.style.display = "none";
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == detailModal) {
+                detailModal.style.display = "none";
+            }
+        }
+        
+        // 组合调试相关变量和函数
+        let comboDebugList = []; // 存储所有组合调试记录
+        let currentComboDebugId = null; // 当前选择的组合调试ID
+        let comboDebugDetails = []; // 当前组合调试的详细信息
+        
+        // 加载所有组合调试记录
+        function loadComboDebugList() {
+            fetch(plcRunApiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        comboDebugList = data.data;
+                        populateComboDebugSelect();
+                    } else {
+                        showMessage('加载组合调试失败: ' + data.msg, 'error', 'comboDebug');
+                    }
+                })
+                .catch(error => {
+                    showMessage('加载组合调试失败: ' + error.message, 'error', 'comboDebug');
+                });
+        }
+        
+        // 填充组合调试下拉框
+        function populateComboDebugSelect() {
+            const comboDebugSelect = document.getElementById('comboDebugSelect');
+            comboDebugSelect.innerHTML = '<option value="">请选择组合调试</option>';
+            comboDebugList.forEach(combo => {
+                const option = document.createElement('option');
+                option.value = combo.id;
+                option.textContent = combo.name;
+                comboDebugSelect.appendChild(option);
+            });
+        }
+        
+        // 处理组合调试选择变化
+        function handleComboDebugChange() {
+            currentComboDebugId = parseInt(document.getElementById('comboDebugSelect').value) || null;
+            if (currentComboDebugId) {
+                loadComboDebugDetails(currentComboDebugId);
+            } else {
+                // 清空详情列表
+                document.querySelector('#comboDebugDetailsTable tbody').innerHTML = '';
+            }
+        }
+        
+        // 加载组合调试详情
+        function loadComboDebugDetails(comboDebugId) {
+            // 先获取plc_run记录
+            fetch(plcRunApiUrl + '/get?id=' + comboDebugId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const plcRun = data.data;
+                        // 获取plc_run_detail记录
+                        return fetch('/api/plc-run-detail/get-by-plc-run-id?plcRunId=' + comboDebugId)
+                            .then(response => response.json())
+                            .then(detailData => {
+                                if (detailData.code === 200) {
+                                    comboDebugDetails = detailData.data;
+                                    renderComboDebugDetails(comboDebugDetails, plcRun);
+                                } else {
+                                    showMessage('加载组合调试详情失败: ' + detailData.msg, 'error', 'comboDebug');
+                                }
+                            });
+                    } else {
+                        showMessage('加载组合调试失败: ' + data.msg, 'error', 'comboDebug');
+                    }
+                })
+                .catch(error => {
+                    showMessage('加载组合调试详情失败: ' + error.message, 'error', 'comboDebug');
+                });
+        }
+        
+        // 渲染组合调试详情
+        function renderComboDebugDetails(details, plcRun) {
+            const tableBody = document.querySelector('#comboDebugDetailsTable tbody');
+            tableBody.innerHTML = '';
+            
+            // 按sort_no字段排序
+            details.sort((a, b) => (a.sortNo || 0) - (b.sortNo || 0));
+            
+            // 获取所有PLC地址信息，用于显示名称和IP
+            fetch('/api/plc-addr')
+                .then(response => response.json())
+                .then(addrData => {
+                    if (addrData.code === 200) {
+                        const allPlcAddrs = addrData.data;
+                        
+                        // 获取所有PLC信息，用于显示IP地址
+                        return fetch('/api/plc-info')
+                            .then(response => response.json())
+                            .then(plcInfoData => {
+                                if (plcInfoData.code === 200) {
+                                    const plcInfos = plcInfoData.data;
+                                    
+                                    details.forEach(detail => {
+                                        // 查找对应的PLC地址
+                                        const plcAddr = allPlcAddrs.find(addr => addr.id === detail.plcAddrId);
+                                        
+                                        if (plcAddr) {
+                                            // 查找对应的PLC信息
+                                            const plcInfo = plcInfos.find(info => info.id === plcAddr.plcInfoId);
+                                            
+                                            const row = document.createElement('tr');
+                                            row.dataset.id = detail.id; // 保存detail的ID
+                                            row.dataset.plcAddrId = plcAddr.id; // 保存plcAddr的ID
+                                            row.dataset.plcInfoId = plcInfo.id; // 保存plcInfo的ID
+                                            row.innerHTML = `
+                                                <td>${detail.sortNo || ''}</td>
+                                                <td>${plcAddr.plcNo || ''}</td>
+                                                <td>${plcAddr.name || ''}</td>
+                                                <td>${typeMap[plcAddr.type] || plcAddr.type}</td>
+                                                <td>${plcInfo ? plcInfo.ipAddr : '未知'}</td>
+                                                <td>${detail.plcValue !== undefined ? detail.plcValue : 0}</td>
+                                                <td>${detail.timeOutSecond !== undefined ? detail.timeOutSecond : 60}</td>
+                                                <td class="actions">
+                                                    <button class="btn" onclick="editComboDebugDetail(${detail.id})">编辑</button>
+                                                    <button class="btn btn-danger" onclick="deleteComboDebugDetail(${detail.id})">删除</button>
+                                                    <button class="btn" onclick="addComboDebugDetailRow('${plcInfo ? plcInfo.ipAddr : ''}', ${plcInfo ? plcInfo.id : 0}, event)">新增</button>
+                                                </td>
+                                            `;
+                                            tableBody.appendChild(row);
+                                        }
+                                    });
+                                } else {
+                                    showMessage('加载PLC信息失败: ' + plcInfoData.msg, 'error', 'comboDebug');
+                                }
+                            });
+                    } else {
+                        showMessage('加载PLC地址失败: ' + addrData.msg, 'error', 'comboDebug');
+                    }
+                })
+                .catch(error => {
+                    showMessage('加载PLC地址失败: ' + error.message, 'error', 'comboDebug');
+                });
+        }
+        
+        // 编辑组合调试详情
+        function editComboDebugDetail(detailId) {
+            // 获取对应的行
+            const row = document.querySelector(`tr[data-id="${detailId}"]`);
+            if (!row) return;
+            
+            // 获取当前值
+            const valueCell = row.cells[5]; // 点位值单元格 (第6列)
+            const timeoutCell = row.cells[6]; // 超时/秒单元格 (第7列)
+            
+            const currentValue = parseInt(valueCell.textContent) || 0;
+            const currentTimeout = parseInt(timeoutCell.textContent) || 60;
+            
+            // 替换为输入框
+            valueCell.innerHTML = `<input type="number" class="editable-input" value="${currentValue}" data-field="plcValue">`;
+            timeoutCell.innerHTML = `<input type="number" class="editable-input" value="${currentTimeout}" data-field="timeOutSecond">`;
+            
+            // 更改操作按钮
+            const actionsCell = row.cells[7]; // 操作单元格 (第8列)
+            const plcInfoId = row.dataset.plcInfoId;
+            actionsCell.innerHTML = `
+                <button class="btn btn-success" onclick="saveComboDebugDetail(${detailId})">保存</button>
+                <button class="btn btn-warning" onclick="cancelEditComboDebugDetail(${detailId}, ${currentValue}, ${currentTimeout})">取消</button>
+                <button class="btn btn-danger" onclick="deleteComboDebugDetail(${detailId})">删除</button>
+                <button class="btn" onclick="addComboDebugDetailRow('', ${plcInfoId}, event)">新增</button>
+            `;
+        }
+        
+        // 取消编辑组合调试详情
+        function cancelEditComboDebugDetail(detailId, oldValue, oldTimeout) {
+            // 获取对应的行
+            const row = document.querySelector(`tr[data-id="${detailId}"]`);
+            if (!row) return;
+            
+            // 恢复原始值
+            const valueCell = row.cells[5]; // 点位值单元格 (第6列)
+            const timeoutCell = row.cells[6]; // 超时/秒单元格 (第7列)
+            
+            valueCell.textContent = oldValue;
+            timeoutCell.textContent = oldTimeout;
+            
+            // 恢复操作按钮
+            const actionsCell = row.cells[7]; // 操作单元格 (第8列)
+            const plcInfoId = row.dataset.plcInfoId;
+            actionsCell.innerHTML = `
+                <button class="btn" onclick="editComboDebugDetail(${detailId})">编辑</button>
+                <button class="btn btn-danger" onclick="deleteComboDebugDetail(${detailId})">删除</button>
+                <button class="btn" onclick="addComboDebugDetailRow('', ${plcInfoId}, event)">新增</button>
+            `;
+        }
+        
+        // 保存组合调试详情
+        function saveComboDebugDetail(detailId) {
+            // 获取对应的行
+            const row = document.querySelector(`tr[data-id="${detailId}"]`);
+            if (!row) return;
+            
+            // 获取输入值
+            const plcValueInput = row.querySelector('input[data-field="plcValue"]');
+            const timeOutSecondInput = row.querySelector('input[data-field="timeOutSecond"]');
+            
+            const plcValue = parseInt(plcValueInput.value) || 0;
+            const timeOutSecond = parseInt(timeOutSecondInput.value) || 60;
+            
+            // 获取关联的ID
+            const plcAddrId = parseInt(row.dataset.plcAddrId);
+            const plcRunId = currentComboDebugId;
+            
+            // 计算sort_no，根据页面上从上到下的顺序
+            const tableRows = Array.from(document.querySelectorAll('#comboDebugDetailsTable tbody tr'));
+            const rowIndex = tableRows.indexOf(row) + 1; // 从1开始排序
+            
+            // 构造更新对象
+            const detailUpdate = {
+                id: detailId,
+                plcRunId: plcRunId,
+                plcAddrId: plcAddrId,
+                sortNo: rowIndex,
+                plcValue: plcValue,
+                timeOutSecond: timeOutSecond
+            };
+            
+            // 发送更新请求
+            fetch('/api/plc-run-detail/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(detailUpdate)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('保存成功', 'success', 'comboDebug');
+                    // 重新分配sort_no并更新所有记录
+                    if (currentComboDebugId) {
+                        reassignSortNumbers(currentComboDebugId);
+                    }
+                } else {
+                    showMessage('保存失败: ' + result.msg, 'error', 'comboDebug');
+                }
+            })
+            .catch(error => {
+                showMessage('保存失败: ' + error.message, 'error', 'comboDebug');
+            });
+        }
+        
+        // 删除组合调试详情
+        function deleteComboDebugDetail(detailId) {
+            if (!confirm('确定要删除这条详情记录吗？')) {
+                return;
+            }
+            
+            fetch('/api/plc-run-detail/delete?id=' + detailId, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('删除成功', 'success', 'comboDebug');
+                    // 重新分配sort_no并更新所有记录
+                    if (currentComboDebugId) {
+                        reassignSortNumbersAfterDelete(currentComboDebugId);
+                    }
+                } else {
+                    showMessage('删除失败: ' + result.msg, 'error', 'comboDebug');
+                }
+            })
+            .catch(error => {
+                showMessage('删除失败: ' + error.message, 'error', 'comboDebug');
+            });
+        }
+        
+        // 在指定行下方添加新行
+        function addComboDebugDetailRow(ipAddr, plcInfoId, event) {
+            // 创建新行
+            const newRow = document.createElement('tr');
+            
+            // 构建表格行内容
+            // cells[0]: 排序号
+            const td1 = document.createElement('td');
+            td1.textContent = '';
+            
+            // cells[1]: PLC点位编号（会在选择后自动填充）
+            const td2 = document.createElement('td');
+            td2.textContent = '';
+            td2.setAttribute('data-field', 'plcNo');  // 标记这个单元格
+            
+            // cells[2]: 名称（会在选择后自动填充）
+            const td3 = document.createElement('td');
+            td3.textContent = '';
+            td3.setAttribute('data-field', 'name');
+            
+            // cells[3]: 类型（会在选择后自动填充）
+            const td4 = document.createElement('td');
+            td4.textContent = '';
+            td4.setAttribute('data-field', 'type');
+            
+            // cells[4]: IP
+            const td5 = document.createElement('td');
+            td5.textContent = ipAddr || '';
+            
+            // cells[5]: 点位值
+            const td6 = document.createElement('td');
+            const input1 = document.createElement('input');
+            input1.type = 'number';
+            input1.classList.add('editable-input');
+            input1.value = '0';
+            input1.setAttribute('data-field', 'plcValue');
+            td6.appendChild(input1);
+            
+            // cells[6]: 超时/秒
+            const td7 = document.createElement('td');
+            const input2 = document.createElement('input');
+            input2.type = 'number';
+            input2.classList.add('editable-input');
+            input2.value = '60';
+            input2.setAttribute('data-field', 'timeOutSecond');
+            td7.appendChild(input2);
+            
+            // cells[7]: 操作（包含下拉框和按钮）
+            const td8 = document.createElement('td');
+            td8.className = 'actions';
+            
+            // 创建下拉框用于选择PLC点位
+            const select = document.createElement('select');
+            select.classList.add('editable-input');
+            select.classList.add('plc-addr-select');
+            select.style.marginBottom = '5px';
+            select.style.display = 'block';
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '请选择PLC点位';
+            select.appendChild(defaultOption);
+            td8.appendChild(select);
+            
+            // 创建按钮容器
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.display = 'flex';
+            buttonContainer.style.gap = '3px';
+            buttonContainer.style.marginTop = '5px';
+            
+            const saveButton = document.createElement('button');
+            saveButton.className = 'btn btn-success';
+            saveButton.textContent = '保存';
+            saveButton.onclick = function() {
+                saveNewComboDebugDetail.call(this, plcInfoId);
+            };
+            
+            const cancelButton = document.createElement('button');
+            cancelButton.className = 'btn btn-warning';
+            cancelButton.textContent = '取消';
+            cancelButton.onclick = function() {
+                cancelNewComboDebugDetail.call(this);
+            };
+            
+            buttonContainer.appendChild(saveButton);
+            buttonContainer.appendChild(cancelButton);
+            td8.appendChild(buttonContainer);
+            
+            newRow.appendChild(td1);
+            newRow.appendChild(td2);
+            newRow.appendChild(td3);
+            newRow.appendChild(td4);
+            newRow.appendChild(td5);
+            newRow.appendChild(td6);
+            newRow.appendChild(td7);
+            newRow.appendChild(td8);
+            
+            // 找到触发按钮所在的行并在其后插入新行
+            if (event && event.target) {
+                const button = event.target;
+                const currentRow = button.closest('tr');
+                currentRow.parentNode.insertBefore(newRow, currentRow.nextSibling);
+            } else {
+                // 如果没有event，则添加到表格末尾
+                const tableBody = document.querySelector('#comboDebugDetailsTable tbody');
+                tableBody.appendChild(newRow);
+            }
+            
+            // 加载PLC点位下拉框数据
+            // 确保元素已经被添加到DOM中再查询
+            setTimeout(() => {
+                loadPlcAddrOptions(newRow.querySelector('.plc-addr-select'), plcInfoId, newRow);
+            }, 0);
+        }
+        
+        // 加载PLC点位下拉框选项
+        function loadPlcAddrOptions(selectElement, plcInfoId, row) {
+            fetch(`/api/plc-addr/get-by-plc-info-id?plcInfoId=${plcInfoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        // 清空原有选项
+                        selectElement.innerHTML = '<option value="">请选择PLC点位</option>';
+                        
+                        // 添加新选项
+                        data.data.forEach(addr => {
+                            const option = document.createElement('option');
+                            option.value = addr.id;
+                            option.textContent = `${addr.plcNo}-${addr.name}`;
+                            selectElement.appendChild(option);
+                        });
+                        
+                        // 绑定选择事件
+                        selectElement.onchange = function() {
+                            const selectedAddr = data.data.find(addr => addr.id == this.value);
+                            if (selectedAddr) {
+                                // 新的列结构：
+                                // cells[1]: PLC点位编号
+                                // cells[2]: 名称
+                                // cells[3]: 类型
+                                const plcNoCell = row.cells[1];   // PLC点位编号单元格
+                                const nameCell = row.cells[2];    // 名称单元格
+                                const typeCell = row.cells[3];    // 类型单元格
+                                
+                                plcNoCell.textContent = selectedAddr.plcNo || '';
+                                nameCell.textContent = selectedAddr.name || '';
+                                typeCell.textContent = typeMap[selectedAddr.type] || selectedAddr.type;
+                            }
+                        };
+                    } else {
+                        showMessage('加载PLC点位失败: ' + data.msg, 'error', 'comboDebug');
+                    }
+                })
+                .catch(error => {
+                    showMessage('加载PLC点位失败: ' + error.message, 'error', 'comboDebug');
+                });
+        }
+        
+        // 保存新的组合调试详情
+        function saveNewComboDebugDetail(plcInfoId) {
+            console.log('saveNewComboDebugDetail called with plcInfoId:', plcInfoId);
+            
+            try {
+                // 获取新行
+                const button = this;
+                const row = button.closest('tr');
+                
+                console.log('Button:', button);
+                console.log('Row:', row);
+                console.log('Row HTML:', row ? row.outerHTML.substring(0, 200) : 'null');
+                
+                if (!row) {
+                    showMessage('找不到对应的行', 'error', 'comboDebug');
+                    return;
+                }
+                
+                // 打印行中所有的 td 元素
+                console.log('Row cells count:', row.cells.length);
+                
+                // 新的列结构：
+                // cells[0]: 排序号
+                // cells[1]: PLC点位编号（文本）
+                // cells[2]: 名称（文本）
+                // cells[3]: 类型（文本）
+                // cells[4]: IP
+                // cells[5]: 点位值（input）
+                // cells[6]: 超时/秒（input）
+                // cells[7]: 操作（下拉框 + 按钮）
+                
+                // 从操作列（cells[7]）获取下拉框
+                const plcAddrSelect = row.cells[7]?.querySelector('.plc-addr-select');
+                const plcValueInput = row.cells[5]?.querySelector('input');
+                const timeOutSecondInput = row.cells[6]?.querySelector('input');
+                
+                console.log('plcAddrSelect:', plcAddrSelect);
+                console.log('plcValueInput:', plcValueInput);
+                console.log('timeOutSecondInput:', timeOutSecondInput);
+                
+                // 检查元素是否存在
+                if (!plcAddrSelect || !plcValueInput || !timeOutSecondInput) {
+                    console.error('找不到必要的输入元素');
+                    console.error('plcAddrSelect 存在:', !!plcAddrSelect);
+                    console.error('plcValueInput 存在:', !!plcValueInput);
+                    console.error('timeOutSecondInput 存在:', !!timeOutSecondInput);
+                    showMessage('页面元素错误，请重新尝试', 'error', 'comboDebug');
+                    return;
+                }
+                
+                const plcAddrId = parseInt(plcAddrSelect.value);
+                const plcValue = parseInt(plcValueInput.value) || 0;
+                const timeOutSecond = parseInt(timeOutSecondInput.value) || 60;
+                
+                console.log('plcAddrId:', plcAddrId);
+                console.log('plcValue:', plcValue);
+                console.log('timeOutSecond:', timeOutSecond);
+                
+                if (!plcAddrId || isNaN(plcAddrId)) {
+                    showMessage('请选择PLC点位', 'warning', 'comboDebug');
+                    return;
+                }
+                
+                // 计算sort_no，根据页面上从上到下的顺序
+                const tableRows = Array.from(document.querySelectorAll('#comboDebugDetailsTable tbody tr'));
+                const rowIndex = tableRows.indexOf(row) + 1; // 从1开始排序
+                
+                // 构造新对象
+                const newDetail = {
+                    plcRunId: currentComboDebugId,
+                    plcAddrId: plcAddrId,
+                    sortNo: rowIndex,
+                    plcValue: plcValue,
+                    timeOutSecond: timeOutSecond
+                };
+                
+                console.log('准备发送的数据:', newDetail);
+                console.log('currentComboDebugId:', currentComboDebugId);
+                
+                // 发送创建请求
+                console.log('发送请求到 /api/plc-run-detail');
+                fetch('/api/plc-run-detail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(newDetail)
+                })
+                .then(response => {
+                    console.log('收到响应:', response);
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('服务器返回结果:', result);
+                    if (result.code === 200) {
+                        showMessage('创建成功', 'success', 'comboDebug');
+                        // 重新分配sort_no并更新所有记录
+                        if (currentComboDebugId) {
+                            reassignSortNumbers(currentComboDebugId);
+                        }
+                    } else {
+                        showMessage('创建失败: ' + result.msg, 'error', 'comboDebug');
+                    }
+                })
+                .catch(error => {
+                    console.error('创建失败:', error);
+                    showMessage('创建失败: ' + error.message, 'error', 'comboDebug');
+                });
+            } catch (error) {
+                console.error('saveNewComboDebugDetail 函数执行出错:', error);
+                showMessage('保存失败: ' + error.message, 'error', 'comboDebug');
+            }
+        }
+        
+        // 取消新增组合调试详情
+        function cancelNewComboDebugDetail() {
+            const button = this;
+            const row = button.closest('tr');
+            
+            if (row) {
+                row.remove();
+            } else {
+                showMessage('找不到要删除的行', 'error', 'comboDebug');
+            }
+        }
+        
+        // 重新分配sort_no值（删除后调用）
+        function reassignSortNumbersAfterDelete(plcRunId) {
+            // 获取当前所有行
+            const tableRows = Array.from(document.querySelectorAll('#comboDebugDetailsTable tbody tr'));
+            
+            // 收集需要更新的记录ID和新的sort_no值
+            const updates = [];
+            
+            // 为每一行分配新的sort_no值（从1开始）
+            tableRows.forEach((row, index) => {
+                const detailId = row.dataset.id;
+                const newSortNo = index + 1;
+                
+                // 如果是新增的行（还没有ID），跳过
+                if (detailId) {
+                    updates.push({
+                        id: detailId,
+                        sortNo: newSortNo
+                    });
+                }
+            });
+            
+            // 如果没有任何剩余的记录，删除整个组合调试
+            if (tableRows.length <= 1) { // 只剩一行或没有行（最后一行正在被删除）
+                deleteComboDebug(plcRunId);
+                return;
+            }
+            
+            // 如果有需要更新的记录，批量更新它们的sort_no值
+            if (updates.length > 0) {
+                // 创建更新请求的Promise数组
+                const updatePromises = updates.map(update => {
+                    // 构造更新对象（只更新sort_no字段）
+                    const updateData = {
+                        id: update.id,
+                        sortNo: update.sortNo
+                    };
+                    
+                    return fetch('/api/plc-run-detail/update-sort-no', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updateData)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.code !== 200) {
+                            throw new Error(result.msg || '更新失败');
+                        }
+                        return result;
+                    });
+                });
+                
+                // 等待所有更新完成后再重新加载数据
+                Promise.all(updatePromises)
+                    .then(responses => {
+                        // 检查所有响应是否都成功
+                        const allSuccessful = responses.every(response => response.ok);
+                        if (allSuccessful) {
+                            // 所有更新都成功，重新加载详情
+                            loadComboDebugDetails(plcRunId);
+                        } else {
+                            showMessage('部分排序更新失败', 'warning', 'comboDebug');
+                            loadComboDebugDetails(plcRunId);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('更新sort_no时出错:', error);
+                        showMessage('排序更新失败: ' + error.message, 'error', 'comboDebug');
+                        loadComboDebugDetails(plcRunId);
+                    });
+            } else {
+                // 没有需要更新的记录，直接重新加载
+                loadComboDebugDetails(plcRunId);
+            }
+        }
+        
+        // 删除整个组合调试
+        function deleteComboDebug(plcRunId) {
+            fetch('/api/plc-run/delete?id=' + plcRunId, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.code === 200) {
+                    showMessage('组合调试已删除（无剩余点位）', 'success', 'comboDebug');
+                    // 清空详情列表
+                    document.querySelector('#comboDebugDetailsTable tbody').innerHTML = '';
+                    // 重新加载组合调试列表
+                    loadComboDebugList();
+                    // 清空选择
+                    document.getElementById('comboDebugSelect').value = '';
+                } else {
+                    showMessage('删除组合调试失败: ' + result.msg, 'error', 'comboDebug');
+                }
+            })
+            .catch(error => {
+                showMessage('删除组合调试失败: ' + error.message, 'error', 'comboDebug');
+            });
+        }
+        
+        // 重新分配sort_no值
+        function reassignSortNumbers(plcRunId) {
+            // 获取当前所有行
+            const tableRows = Array.from(document.querySelectorAll('#comboDebugDetailsTable tbody tr'));
+            
+            // 收集需要更新的记录ID和新的sort_no值
+            const updates = [];
+            
+            // 为每一行分配新的sort_no值（从1开始）
+            tableRows.forEach((row, index) => {
+                const detailId = row.dataset.id;
+                const newSortNo = index + 1;
+                
+                // 如果是新增的行（还没有ID），跳过
+                if (detailId) {
+                    updates.push({
+                        id: detailId,
+                        sortNo: newSortNo
+                    });
+                }
+            });
+            
+            // 如果有需要更新的记录，批量更新它们的sort_no值
+            if (updates.length > 0) {
+                // 创建更新请求的Promise数组
+                const updatePromises = updates.map(update => {
+                    // 构造更新对象（只更新sort_no字段）
+                    const updateData = {
+                        id: update.id,
+                        sortNo: update.sortNo
+                    };
+                    
+                    return fetch('/api/plc-run-detail/update-sort-no', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updateData)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.code !== 200) {
+                            throw new Error(result.msg || '更新失败');
+                        }
+                        return result;
+                    });
+                });
+                
+                // 等待所有更新完成后再重新加载数据
+                Promise.all(updatePromises)
+                    .then(responses => {
+                        // 检查所有响应是否都成功
+                        const allSuccessful = responses.every(response => response.ok);
+                        if (allSuccessful) {
+                            // 所有更新都成功，重新加载详情
+                            loadComboDebugDetails(plcRunId);
+                        } else {
+                            showMessage('部分排序更新失败', 'warning', 'comboDebug');
+                            loadComboDebugDetails(plcRunId);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('更新sort_no时出错:', error);
+                        showMessage('排序更新失败: ' + error.message, 'error', 'comboDebug');
+                        loadComboDebugDetails(plcRunId);
+                    });
+            } else {
+                // 没有需要更新的记录，直接重新加载
+                loadComboDebugDetails(plcRunId);
+            }
+        }
+    </script>
+    
+    <!-- 组合调试 Tab内容 -->
+    <div id="comboDebug" class="tabcontent active">
+        <div id="comboDebugMessage" class="message hidden"></div>
+        
+        <div class="form-container">
+            <div class="form-row">
+                <div class="form-group label-and-input">
+                    <div class="input-wrapper">
+                        <select id="comboDebugSelect" class="extra-wide-select" required>
+                            <option value="">请选择组合调试</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <table id="comboDebugDetailsTable">
+            <thead>
+                <tr>
+                    <th class="col-sort">排序</th>
+                    <th>PLC点位</th>
+                    <th>名称</th>
+                    <th>类型</th>
+                    <th>IP</th>
+                    <th class="col-value">点位值</th>
+                    <th class="col-timeout">超时/秒</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 详情将通过JavaScript动态填充 -->
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

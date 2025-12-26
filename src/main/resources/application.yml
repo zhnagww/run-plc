@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    banner-mode: "off"
+  datasource:
+    url: jdbc:sqlite:runplc.db
+    driver-class-name: org.sqlite.JDBC
+    username: sa
+    password: 
+    initialization-mode: always
+  sql:
+    init:
+      platform: sqlite
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.runplc.entity
+  configuration:
+    map-underscore-to-camel-case: true

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.runplc.mapper.PlcInfoMapper">
+
+    <resultMap id="PlcInfoMap" type="com.runplc.entity.PlcInfo">
+        <id property="id" column="id"/>
+        <result property="ipAddr" column="ip_addr"/>
+        <result property="portNo" column="port_no"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.runplc.entity.PlcInfo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO plc_info (ip_addr, port_no)
+        VALUES (#{ipAddr}, #{portNo})
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM plc_info WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.runplc.entity.PlcInfo">
+        UPDATE plc_info
+        SET ip_addr = #{ipAddr},
+            port_no = #{portNo}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="int" resultMap="PlcInfoMap">
+        SELECT * FROM plc_info WHERE id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="PlcInfoMap">
+        SELECT * FROM plc_info
+    </select>
+    
+    <select id="selectByIpAddr" parameterType="string" resultMap="PlcInfoMap">
+        SELECT * FROM plc_info WHERE ip_addr = #{ipAddr}
+    </select>
+
+    <select id="selectByIpAddrAndPortNo" resultMap="PlcInfoMap">
+        SELECT *
+        FROM plc_info
+        WHERE ip_addr = #{ipAddr}
+          AND port_no = #{portNo}
+        LIMIT 1
+    </select>
+
+</mapper>
